@@ -1,0 +1,8 @@
+# FFmpeg (system-level dependency)
+# Install with:
+#   macOS: brew install ffmpeg
+#   Ubuntu/Debian: sudo apt-get install ffmpeg
+#   Windows: choco install ffmpeg (or download from ffmpeg.org)
+
+# Python dependencies (this project uses only stdlib)
+# No external Python packages required!
