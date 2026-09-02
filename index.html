@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caramel Dansen - ASCII Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #00ff00, 0 0 20px #00aa00;
+            letter-spacing: 2px;
+        }
+
+        .header p {
+            color: #00aa00;
+            font-size: 1.1em;
+        }
+
+        .player-wrapper {
+            background: #0a0a0a;
+            border: 3px solid #00ff00;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5), inset 0 0 20px rgba(0, 255, 0, 0.1);
+            overflow: hidden;
+        }
+
+        #videoCanvas {
+            width: 100%;
+            height: auto;
+            background: #000;
+            border-radius: 4px;
+            display: block;
+            font-family: monospace;
+            line-height: 1;
+            word-wrap: break-word;
+            white-space: pre;
+            overflow: hidden;
+            font-size: 12px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: #00ff00;
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        button:hover {
+            background: #00aa00;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .mode-button {
+            padding: 10px 20px;
+            background: #1a1a2e;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+
+        .mode-button.active {
+            background: #00ff00;
+            color: #000;
+        }
+
+        .mode-button:hover {
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .stats {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #00aa00;
+        }
+
+        .stats span {
+            display: inline-block;
+            margin: 0 15px;
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                text-shadow: 0 0 10px #00ff00, 0 0 20px #00aa00;
+            }
+            50% {
+                text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            color: #00ff00;
+            font-size: 1.2em;
+            padding: 20px;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .error {
+            background: #2e1a1a;
+            border: 2px solid #ff4444;
+            color: #ff6666;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .info-box {
+            background: #1a1a2e;
+            border-left: 4px solid #00ff00;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            line-height: 1.6;
+            color: #00aa00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 CARAMEL DANSEN 🎵</h1>
+            <p>ASCII Art Animation Player</p>
+        </div>
+
+        <div class="player-wrapper">
+            <div class="mode-toggle">
+                <button class="mode-button active" data-mode="halfblock">▀ Halfblock Mode</button>
+                <button class="mode-button" data-mode="ascii">ASCII Mode</button>
+            </div>
+
+            <div id="videoCanvas" class="loading">Loading video...</div>
+
+            <div class="controls">
+                <button id="playBtn">▶ Play</button>
+                <button id="pauseBtn" disabled>⏸ Pause</button>
+                <button id="stopBtn" disabled>⏹ Stop</button>
+                <button id="downloadBtn">⬇ Download ASCII</button>
+            </div>
+
+            <div class="stats">
+                <span>FPS: <span id="fps">0</span></span>
+                <span>Frame: <span id="frameCount">0</span></span>
+                <span>Time: <span id="currentTime">00:00</span></span>
+            </div>
+
+            <div class="error" id="errorBox"></div>
+
+            <div class="info-box">
+                <strong>ℹ About:</strong><br>
+                This is a real-time ASCII art rendering of Caramel Dansen using 24-bit color terminal escape sequences. 
+                Switch between halfblock (higher resolution) and classic ASCII modes. The animation streams video frames 
+                and converts them to ASCII/Unicode characters maintaining the original colors.
+            </div>
+        </div>
+    </div>
+
+    <script src="player.js"></script>
+</body>
+</html>
